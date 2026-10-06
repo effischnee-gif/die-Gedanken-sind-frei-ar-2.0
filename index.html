@@ -1,0 +1,395 @@
+<!doctype html>
+
+<html lang="de">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta
+
+    name="viewport"
+
+    content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+  <title>Die Gedanken sind frei 2.0 – AR</title>
+
+  <!-- A-Frame -->
+
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+  <!-- MindAR -->
+
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+
+    html,
+
+    body {
+
+      margin: 0;
+
+      width: 100%;
+
+      height: 100%;
+
+      overflow: hidden;
+
+    }
+
+    #status {
+
+      position: fixed;
+
+      top: max(16px, env(safe-area-inset-top));
+
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      z-index: 9998;
+
+      color: white;
+
+      background: rgba(20,12,17,.55);
+
+      padding: 7px 12px;
+
+      border-radius: 20px;
+
+      font:
+
+        13px
+
+        -apple-system,
+
+        BlinkMacSystemFont,
+
+        sans-serif;
+
+      white-space: nowrap;
+
+    }
+
+    #audioPanel {
+
+      position: fixed;
+
+      left: 50%;
+
+      bottom: max(24px, env(safe-area-inset-bottom));
+
+      transform: translateX(-50%);
+
+      z-index: 9999;
+
+      display: none;
+
+      align-items: center;
+
+      gap: 10px;
+
+      background: rgba(18,12,16,.72);
+
+      color: white;
+
+      padding: 10px 14px;
+
+      border-radius: 999px;
+
+      font:
+
+        15px
+
+        -apple-system,
+
+        BlinkMacSystemFont,
+
+        sans-serif;
+
+      backdrop-filter: blur(9px);
+
+      -webkit-backdrop-filter: blur(9px);
+
+    }
+
+    #audioButton {
+
+      border: 0;
+
+      border-radius: 999px;
+
+      padding: 9px 14px;
+
+      background: white;
+
+      color: #111;
+
+      font-weight: 600;
+
+      font-size: 15px;
+
+    }
+
+  </style>
+
+  <script>
+
+    window.addEventListener('DOMContentLoaded', () => {
+
+      const target =
+
+        document.querySelector('#target');
+
+      const panel =
+
+        document.querySelector('#audioPanel');
+
+      const button =
+
+        document.querySelector('#audioButton');
+
+      const audio =
+
+        document.querySelector('#narration');
+
+      const status =
+
+        document.querySelector('#status');
+
+      /* TARGET ERKANNT */
+
+      target.addEventListener('targetFound', () => {
+
+        status.textContent =
+
+          'Figur wird sichtbar';
+
+        panel.style.display =
+
+          'flex';
+
+      });
+
+      /* TARGET VERLOREN */
+
+      target.addEventListener('targetLost', () => {
+
+        status.textContent =
+
+          'Suche das Diptychon …';
+
+        if (audio.paused) {
+
+          panel.style.display = 'none';
+
+        }
+
+      });
+
+      /* AUDIO */
+
+      button.addEventListener('click', async () => {
+
+        if (audio.paused) {
+
+          try {
+
+            await audio.play();
+
+            button.textContent =
+
+              '❚❚ Pause';
+
+          }
+
+          catch (error) {
+
+            console.log(
+
+              'Audio konnte nicht gestartet werden.',
+
+              error
+
+            );
+
+          }
+
+        }
+
+        else {
+
+          audio.pause();
+
+          button.textContent =
+
+            '▶ Anhören';
+
+        }
+
+      });
+
+      audio.addEventListener('ended', () => {
+
+        button.textContent =
+
+          '▶ Noch einmal';
+
+      });
+
+    });
+
+  </script>
+
+</head>
+
+<body>
+
+  <!-- AUDIO -->
+
+  <audio
+
+    id="narration"
+
+    preload="auto"
+
+    playsinline>
+
+    <source
+
+      src="./Die_Gedanken_sind_frei_Audio.m4a"
+
+      type="audio/mp4">
+
+  </audio>
+
+  <!-- STATUS -->
+
+  <div id="status">
+
+    Suche das Diptychon …
+
+  </div>
+
+  <!-- AUDIO-BUTTON -->
+
+  <div id="audioPanel">
+
+    <button id="audioButton">
+
+      ▶ Anhören
+
+    </button>
+
+    <span>
+
+      Die Gedanken sind frei 2.0
+
+    </span>
+
+  </div>
+
+  <!-- AR-SZENE -->
+
+  <a-scene
+
+    mindar-image="
+
+      imageTargetSrc: ./targets.mind;
+
+      maxTrack: 1;
+
+      uiLoading: yes;
+
+      uiScanning: yes;
+
+      uiError: yes"
+
+    color-space="sRGB"
+
+    renderer="
+
+      colorManagement: true"
+
+    vr-mode-ui="
+
+      enabled: false"
+
+    device-orientation-permission-ui="
+
+      enabled: false">
+
+    <!-- DATEIEN -->
+
+    <a-assets>
+
+      <img
+
+        id="figure20"
+
+        src="./IMG_9850.png"
+
+        crossorigin="anonymous">
+
+    </a-assets>
+
+    <!-- KAMERA -->
+
+    <a-camera
+
+      position="0 0 0"
+
+      look-controls="enabled:false">
+
+    </a-camera>
+
+    <!-- DIPTYCHON-TARGET -->
+
+    <a-entity
+
+      id="target"
+
+      mindar-image-target="targetIndex:0">
+
+      <!--
+
+        FIGUR 2.0
+
+        Ein einziges PNG.
+
+        Beine links / Oberkörper rechts.
+
+      -->
+
+      <a-image
+
+        id="figure"
+
+        src="#figure20"
+
+        position="0 0 0.01"
+
+        width="0.86"
+
+        height="0.484"
+
+        material="
+
+          shader: flat;
+
+          transparent: true;
+
+          opacity: 1;
+
+          side: double">
+
+      </a-image>
+
+    </a-entity>
+
+  </a-scene>
+
+</body>
+
+</html>
